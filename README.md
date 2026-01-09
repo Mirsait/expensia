@@ -14,10 +14,11 @@ making it easier to track spending habits and stay within budget.
 - View a summary of all expenses  
 - View a summary of expenses for a specific month (current year)  
 
-## Additional features
-- Export expenses to JSON or CSV files 
+## TODO
+- Export expenses to CSV file
 - Add expense categories and filter expenses by category  
 - Set a monthly budget and receive a warning when the budget is exceeded  
+- Add beauty (bubbletea)
 
 ## Getting started
 
@@ -25,12 +26,15 @@ making it easier to track spending habits and stay within budget.
 ```bash
 git clone https://github.com/Mirsait/expensia
 cd expensia
-go build -o expensia
+go build -o build/expensia
+# or
+make build
 ```
-- Installation
+- Install
 ```bash
 git clone https://github.com/Mirsait/expensia
 cd expensia
+make build
 sudo make install
 ```
 - Uninstall
