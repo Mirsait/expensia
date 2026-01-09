@@ -1,53 +1,31 @@
-/*
-Copyright © 2025 Aucharenka Mikhail <mavcharenko@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
 package cmd
 
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var cfgFile string
+var dataFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "expensia",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Short: "Expense tracker",
+	Long:  `This is a simple command-line application designed to help users manage their
+personal finances. The application allows users to add, update, delete, and view
+expenses.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Author:", viper.GetString("author"))
+		fmt.Println("License:", viper.GetString("license"))
+		fmt.Println("Data:", viper.GetString("data"))
+	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -58,37 +36,58 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
+	rootCmd.Flags().StringVar(
+		&dataFile,
+		"data",
+		"",
+		"data file (default is $HOME/expensia/data.yaml)")
+	viper.BindPFlag("data", rootCmd.Flags().Lookup("data"))
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.expensia.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// set if none
+	viper.SetDefault("author", "Aucharenka Mikhail <mavcharenko@gmail.com>")
+	viper.SetDefault("license", "MIT")
+	viper.SetDefault("data", getDefaultPath())
 }
 
-// initConfig reads in config file and ENV variables if set.
+func getDefaultPath() string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, "expensia", "data.json")
+}
+
 func initConfig() {
 	if cfgFile != "" {
-		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
+		configPath := filepath.Join(home, "expensia")
+		_ = os.MkdirAll(configPath, 0755)
 
-		// Search config in home directory with name ".expensia" (without extension).
-		viper.AddConfigPath(home)
+		viper.AddConfigPath(configPath)
 		viper.SetConfigType("yaml")
-		viper.SetConfigName(".expensia")
+		viper.SetConfigName(".config")
+		cfgFile = filepath.Join(configPath, ".config.yaml")
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+	viper.AutomaticEnv()
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			fmt.Println("Config not found, creating:", cfgFile)
+			if err := viper.SafeWriteConfigAs(cfgFile); err != nil {
+				cobra.CheckErr(err)
+			}
+		} else {
+			cobra.CheckErr(err)
+		}
+	} else {
+		// fmt.Println("Using config file:", viper.ConfigFileUsed())
+		if !viper.IsSet("data") {
+			viper.Set("data", getDefaultPath())
+		}
+
+		if err := viper.WriteConfigAs(cfgFile); err != nil {
+			cobra.CheckErr(err)
+		}
 	}
 }
