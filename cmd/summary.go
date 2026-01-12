@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Mirsait/expensia/fp"
 	"github.com/Mirsait/expensia/models"
 	"github.com/Mirsait/expensia/storage"
 	"github.com/spf13/cobra"
@@ -49,23 +50,27 @@ var summaryCmd = &cobra.Command{
 }
 
 func expensesInCurrentYear(data []Expense, currentYear int) int {
-	return filterData(data, func(x Expense) bool {
-		return x.CreatedAt.Year() == currentYear
-	})
-}
-func expensesInMonth(data []Expense, currentYear, month int) int {
-	return filterData(data, func(x Expense) bool {
-		return x.CreatedAt.Year() == currentYear &&
-			x.CreatedAt.Month() == time.Month(month)
-	})
+	return fp.ReduceWithFilter(
+		data,
+		0,
+		func(acc int, x Expense) int {
+			return acc + x.Amount
+		},
+		func(x Expense) bool {
+			return x.CreatedAt.Year() == currentYear
+		})
 }
 
-func filterData(data []Expense, pred func(Expense) bool) int {
-	total := 0
-	for _, item := range data {
-		if pred(item) {
-			total += item.Amount
-		}
-	}
-	return total
+func expensesInMonth(data []Expense, currentYear, month int) int {
+	return fp.ReduceWithFilter(
+		data,
+		0,
+		func(acc int, x Expense) int {
+			return acc + x.Amount
+		},
+		func(x Expense) bool {
+			date := x.CreatedAt
+			return date.Year() == currentYear &&
+				date.Month() == time.Month(month)
+		})
 }
