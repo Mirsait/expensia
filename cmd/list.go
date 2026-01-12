@@ -10,9 +10,10 @@ import (
 )
 
 func init() {
-	listCmd.Flags().StringVar(
+	listCmd.Flags().StringVarP(
 		&Category,
-		"category",
+		CategoryFlag,
+		"c",
 		defaultCategory,
 		"Filter expenses by category")
 	rootCmd.AddCommand(listCmd)

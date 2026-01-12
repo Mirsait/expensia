@@ -17,22 +17,25 @@ var Category string
 const defaultCategory = "all"
 
 func init() {
-	addCmd.Flags().StringVar(
+	addCmd.Flags().StringVarP(
 		&Description,
-		"description",
+		DescriptionFlag,
+		"D",
 		"",
-		"an expense description")
-	addCmd.MarkFlagRequired("description")
-	addCmd.Flags().IntVar(
+		"An expense description")
+	addCmd.MarkFlagRequired(DescriptionFlag)
+	addCmd.Flags().IntVarP(
 		&Amount,
-		"amount",
+		AmountFlag,
+		"a",
 		0,
-		"an expense amount")
-	addCmd.MarkFlagRequired("amount")
-	addCmd.MarkFlagsRequiredTogether("description", "amount")
-	addCmd.Flags().StringVar(
+		"An expense amount")
+	addCmd.MarkFlagRequired(AmountFlag)
+	addCmd.MarkFlagsRequiredTogether(DescriptionFlag, AmountFlag)
+	addCmd.Flags().StringVarP(
 		&Category,
-		"category",
+		CategoryFlag,
+		"c",
 		defaultCategory,
 		"An expense category")
 	rootCmd.AddCommand(addCmd)

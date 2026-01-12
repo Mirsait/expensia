@@ -16,18 +16,18 @@ var delimiter string
 func init() {
 	exportCmd.Flags().StringVarP(
 		&outputFile,
-		"output",
+		OutputFlag,
 		"o",
 		"expenses.csv",
 		"Output File Path")
 	exportCmd.Flags().StringVarP(
 		&delimiter,
-		"delimiter",
+		DelimiterFlag,
 		"d",
 		",",
 		"Delimiter")
 	exportCmd.Flags().Bool(
-		"force",
+		ForceFlag,
 		false,
 		"Overwrite output file")
 	rootCmd.AddCommand(exportCmd)
@@ -41,7 +41,7 @@ var exportCmd = &cobra.Command{
 		if data, err := storage.Load(dataFile); err == nil {
 			lst := prepairData(data)
 			del := rune(delimiter[0])
-			isOverwrite, _ := cmd.Flags().GetBool("force")
+			isOverwrite, _ := cmd.Flags().GetBool(ForceFlag)
 			err = mycsv.Save(outputFile, lst, del, isOverwrite)
 			if err != nil {
 				fmt.Println(err.Error())
