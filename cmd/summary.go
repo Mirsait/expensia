@@ -33,15 +33,15 @@ var summaryCmd = &cobra.Command{
 		}
 		datafile := viper.GetString("data")
 		if data, err := storage.Load(datafile); err == nil {
-			total := 0
 			currentYear := time.Now().Year()
 			if monthValue > 0 {
-				total = expensesInMonth(data, currentYear, monthValue)
+				total := expensesInMonth(data, currentYear, monthValue)
+				monthName := time.Month(monthValue).String()
+				fmt.Printf("Total expenses for %s: $%d\n", monthName, total)
 			} else {
-				total = expensesInCurrentYear(data, currentYear)
+				total := expensesInCurrentYear(data, currentYear)
+				fmt.Printf("Total expenses: $%d\n", total)
 			}
-
-			fmt.Printf("Total expenses: $%d\n", total)
 		} else {
 			fmt.Println("Loading error:", err.Error())
 		}
