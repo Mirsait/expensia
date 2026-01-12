@@ -16,7 +16,7 @@ var dataFile string
 var rootCmd = &cobra.Command{
 	Use:   "expensia",
 	Short: "Expense tracker",
-	Long:  `This is a simple command-line application designed to help users manage their
+	Long: `This is a simple command-line application designed to help users manage their
 personal finances. The application allows users to add, update, delete, and view
 expenses.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -38,7 +38,7 @@ func init() {
 
 	rootCmd.Flags().StringVar(
 		&dataFile,
-		"data",
+		DataFlag,
 		"",
 		"data file (default is $HOME/expensia/data.yaml)")
 	viper.BindPFlag("data", rootCmd.Flags().Lookup("data"))

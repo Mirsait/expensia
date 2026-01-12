@@ -16,9 +16,10 @@ type Expense = models.Expense
 var monthValue int
 
 func init() {
-	summaryCmd.Flags().IntVar(
+	summaryCmd.Flags().IntVarP(
 		&monthValue,
-		"month",
+		MonthFlag,
+		"m",
 		0,
 		"filter by month")
 	rootCmd.AddCommand(summaryCmd)

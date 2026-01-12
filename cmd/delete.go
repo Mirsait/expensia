@@ -13,12 +13,13 @@ import (
 var Id int
 
 func init() {
-	deleteCmd.Flags().IntVar(
+	deleteCmd.Flags().IntVarP(
 		&Id,
-		"id",
+		IdFlag,
+		"i",
 		0,
 		"expense id")
-	deleteCmd.MarkFlagRequired("id")
+	deleteCmd.MarkFlagRequired(IdFlag)
 	rootCmd.AddCommand(deleteCmd)
 }
 
