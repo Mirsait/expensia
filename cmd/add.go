@@ -12,6 +12,9 @@ import (
 // local flags will only be used with the `add` command
 var Description string
 var Amount int
+var Category string
+
+const defaultCategory = "all"
 
 func init() {
 	addCmd.Flags().StringVar(
@@ -27,6 +30,11 @@ func init() {
 		"an expense amount")
 	addCmd.MarkFlagRequired("amount")
 	addCmd.MarkFlagsRequiredTogether("description", "amount")
+	addCmd.Flags().StringVar(
+		&Category,
+		"category",
+		defaultCategory,
+		"An expense category")
 	rootCmd.AddCommand(addCmd)
 }
 
@@ -35,7 +43,7 @@ var addCmd = &cobra.Command{
 	Short: "Add an expense",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err  := validData(Description, Amount); err != nil {
+		if err := validData(Description, Amount); err != nil {
 			fmt.Println("Input error:", err.Error())
 			return
 		}
@@ -47,7 +55,7 @@ var addCmd = &cobra.Command{
 					nextId = item.Id + 1
 				}
 			}
-			newExp := models.NewExpense(nextId, Description, Amount)
+			newExp := models.NewExpense(nextId, Description, Category, Amount)
 			newData := append(data, newExp)
 			if saveErr := storage.Save(datafile, newData); saveErr == nil {
 				fmt.Printf("Expense added successfully (ID: %d)\n", nextId)
